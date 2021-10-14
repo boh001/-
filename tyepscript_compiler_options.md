@@ -162,7 +162,7 @@ declare module "moduleA"{
 import "./moduleA"
 import { object } from "moduleA"
 ```
-###2.triple-slash directives<br/>
+### 2.triple-slash directives<br/>
 패키지 혹은 파일 간  의존성 선언으로 컴파일 프로세스에 추가적인 파일을 포함하도록 컴파일러에게 지시한다.
 ```typescript
 /// <reference path=”./mymodule.d.ts” /> 파일
@@ -170,23 +170,31 @@ import { object } from "moduleA"
 ```
 ※ tsconfig.json이 없는 시절에 컴파일에 포함할 파일들을 알려주기위해서 사용했습니다.
 
-###3.컴파일러 설정에 포함되어있는 파일
+### 3.컴파일러 설정에 포함되어있는 파일
 ```json
 {
  "compilerOptions": {
- // config 파일에서 설정하는 다른 경로 관련 옵션에 상대경로를 입력할 경우의 root 디렉토리를 지정합니다.
  "baseUrl": ".",
- // 디렉토리 경로 문자열을 지정합니다.
- // 1. <reference types=”…” />와 types옵션에서 모듈 선언을 탐색할 때 기본 디렉토리 역할을 합니다.
- // 2. 해당 옵션에 지정된 경로 하위 모든 패키지는 컴파일시에 자동 포함됩니다.
  "typeRoots": ["./typings"],
- // 패키지명을 지정합니다. 이 옵션이 설정되어 있으면 typeRoots의 자동포함은 동작하지 않습니다.
  "types": ["node", "lodash", "express"]
  },
-// 파일패턴이나 와일드카드 입력이 가능하고 확장자를 입력하지 않는 경우 디렉토리 아래의 모든 파일을 포함합니다. 
  "include": ["src"],
-// include에서 제외할 패턴을 지정합니다.  
  "exclude": ["src"]
 }
 ```
+- baseUrl
+  1. config 파일에서 설정하는 다른 경로 관련 옵션에 상대경로를 입력할 경우의 root 디렉토리를 지정합니다.
+  
+- typeRoots
+  1. 디렉토리 경로 문자열을 지정합니다.
+  2. <reference types=”…” />와 types옵션에서 모듈 선언을 탐색할 때 기본 디렉토리 역할을 합니다.
+  3. 해당 옵션에 지정된 경로 하위 모든 패키지는 컴파일시에 자동 포함됩니다.
+    
+- types
+  1. 패키지명을 지정합니다. 이 옵션이 설정되어 있으면 typeRoots의 자동포함은 동작하지 않습니다.
+- include
+  1. 파일패턴이나 와일드카드 입력이 가능하고 확장자를 입력하지 않는 경우 디렉토리 아래의 모든 파일을 포함합니다.
+- exclue
+  1. include에서 제외할 패턴을 지정합니다.
+
 ※ exclude에 포함시키거나 여러 옵션들에 특정 파일을 넣지 않더라도 import 시킨다면 컴파일 시점에 포함됨으로 주의해야됩니다.
