@@ -17,6 +17,7 @@ export interface CSSObject extends CSSProperties, CSSPseudos {
 }
 ...types
 ```
+<br />
 
 ## 타입스크립트 컴파일러란?
 타입스크립트를 특정 타켓 버전의 자바스크립트로 컴파일 해주는 컴파일러입니다.
@@ -25,9 +26,11 @@ export interface CSSObject extends CSSProperties, CSSPseudos {
 - 타입스크립트로 작성된 소스코드를 AST로 변환
 - 타입체커가 AST를 확인
 - AST를 자바스크립트 소스코드로 변환
-
+  <br />
+  
 ## 타입 선언 파일(.d.ts)이란?
 타입 선언코드만 모여있는 파일로써 컴파일러에게 모듈의 타입을 알려주기 위해서 타입 선언 파일이 필요한다.<br/>
+<br />
 
 ### declare 키워드
 컴파일러에게 해당 변수나 함수가 이미 존재한다는 것을 알리는 역할을 한다.<br />
@@ -50,6 +53,8 @@ declare global {
   }
 }
 ```
+<br />
+
 ### 2. declare namespace Module_Name
 내부 모듈인 네임스페이스는 전역 이름공간과 분리된 네임스페이스 단위의 이름공간입니다.<br />
 따라서 같은 네임스페이스의 이름 공간이라면 파일 B가 파일 A에 선언된 모듈을 참조(reference)할 수 있는데 참조할 때는 별도의 참조문을 선언할 필요가 없습니다. <br />
@@ -112,6 +117,7 @@ declare namespace React {
     | (new (props: P) => Component<P, any>);
 }
 ```
+<br />
 
 ### 3. declare module "Module_Name" 
 앰비언트 모듈 이라고 부릅니다.<br/>
@@ -125,6 +131,8 @@ declare module "moduleA" {
 //index.ts
 import { a } from "moduleA"
 ```
+<br />
+
 ## 타입스크립트 모듈 탐색 방식
 타입 선언 파일을 찾는 과정은 모듈을 불러오는 방식에 따라 다릅니다.
 ```typescript
@@ -145,6 +153,8 @@ import modulename from 'modulename'; // non-relative module import
 
 ### 예시
 ![img_4.png](img_4.png)
+<br />
+<br />
 
 ## 컴파일 시점에 포함시키는 방법
 
@@ -162,6 +172,8 @@ declare module "moduleA"{
 import "./moduleA"
 import { object } from "moduleA"
 ```
+<br />
+
 ### 2.triple-slash directives<br/>
 패키지 혹은 파일 간  의존성 선언으로 컴파일 프로세스에 추가적인 파일을 포함하도록 컴파일러에게 지시한다.
 ```typescript
@@ -169,6 +181,8 @@ import { object } from "moduleA"
 /// <reference types=”mymodule” />  패키지 (mymodule/index.d.ts or package.json)
 ```
 ※ tsconfig.json이 없는 시절에 컴파일에 포함할 파일들을 알려주기위해서 사용했습니다.
+<br />
+<br />
 
 ### 3.컴파일러 설정에 포함되어있는 파일
 ```json
