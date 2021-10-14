@@ -1,6 +1,22 @@
 # 타입스크립트 컴파일러가 타입 선언을 참조하는 과정
-자바스크립트로 된 파일을 타입스크립트에 사용하기 위해선 타입을 참조하기 위한 타입 선언 파일이 필요하다.<br/>
-타입스크립트 컴파일러가 컴파일러 옵션에 따라서 타입 선언 파일을 참조하는 과정을 알아보겠습니다.
+자바스크립트로 된 작성된 라이브러리를 타입스크립트에 사용하기 위해선 타입을 참조하기 위한 타입 선언 파일이 필요합니다.
+타입스크립트 컴파일러가 이 타입 선언 파일을 어떠한 경로를 통해서 참조를하는지 그 과정을 알아보겠습니다.
+```bash
+yarn install styled-components
+
+yarn install @types/styled-components
+```
+```typescript
+// node_modules/@types/styled-components/index.d.ts
+export type CSSProperties = CSS.Properties<string | number>;
+
+export type CSSPseudos = { [K in CSS.Pseudos]?: CSSObject };
+
+export interface CSSObject extends CSSProperties, CSSPseudos {
+  [key: string]: CSSObject | string | number | undefined;
+}
+...types
+```
 
 ## 타입스크립트 컴파일러란?
 타입스크립트를 특정 타켓 버전의 자바스크립트로 컴파일 해주는 컴파일러입니다.
@@ -15,67 +31,18 @@
 
 ### declare 키워드
 컴파일러에게 해당 변수나 함수가 이미 존재한다는 것을 알리는 역할을 한다.<br />
-컴파일러는 코드의 정적 타입 확인을 위해 사용할 뿐 자바스크립트로 컴파일하지 않습니다.<br />
-(allowJs 옵션이 켜져있을 경우 필요없음)
-```javascript
-// moduleA
-export const object = {
-  name: "Camel",
-  age: 28
-}
-```
+컴파일러는 코드의 정적 타입 확인을 위해 사용할 뿐 자바스크립트로 컴파일되지 않습니다.<br />
 ```typescript
-// moduleA.d.ts
-export declare let object2: { name: string, age: number }
+// @types/styled-components/index.d.ts
+declare const styled: StyledInterface;
 
-// index.ts
-import { object1 } from "./moduleA"
-
-object2.name = "Kim"
-```
-
-### declare namespace Module_Name
-![img.png](img.png)<br />
-내부 모듈인 네임스페이스는 전역 이름공간과 분리된 네임스페이스 단위의 이름공간이다.<br />
-따라서 같은 네임스페이스의 이름 공간이라면 파일 B가 파일 A에 선언된 모듈을 참조(reference)할 수 있는데 참조할 때는 별도의 참조문을 선언할 필요가 없다. <br />
-같은 네임스페이스 안에서는 이름을 중복해서 클래스, 함수, 변수 등을 선언할 수 없다. 하지만 다른 네임스페이스 간에는 이름이 같아도 충돌이 없다.
-```typescript
-//moduleA
-namespace moduleA {
-  export let a: string = 'a'
-}
-
-//moduleB
-namespace moduleA {
-  export let b: string = 'b'
-}
+export default styled
 
 //index.ts
-/// <reference path="./moduleB.ts" />
-/// <reference path="./moduleA.ts" />
-moduleA.a = "123"
-moduleA.b = "123"
-```
-```javascript
-//moduleA
-var module;
-(function (module) {
-    module.a = 'a';
-})(module || (module = {}));
-
-//moduleB
-var moduleA;
-(function (moduleA) {
-  moduleA.b = 'b';
-})(moduleA || (moduleA = {}));
-```
-```typescript
-declare namespace moduleA {
-  export let a: string
-}
-```
-### declare global
-모듈 파일에서 전역 참조가 가능한 선언코드를 작성하고 싶을 때 사용한다.
+import styeld from "styled-components"
+````
+### 1. declare global
+모듈 파일에서 전역 참조가 가능한 선언코드를 작성하고 싶을 때 사용합니다.
 ```typescript
 declare global {
   interface Window {
@@ -83,13 +50,80 @@ declare global {
   }
 }
 ```
-### declare module "Module_Name" 
-앰비언트 모듈 선언 파일에 작성하는 블록으로, 앰비언트 모듈 혹은 외부 모듈이라고 부릅니다.<br/>
-이 파일은 컴파일 대상에 포함되기만 한다면 그곳에 선언된 모듈의 타입 정보를 참조할 수 있게된다.
+### 2. declare namespace Module_Name
+내부 모듈인 네임스페이스는 전역 이름공간과 분리된 네임스페이스 단위의 이름공간입니다.<br />
+따라서 같은 네임스페이스의 이름 공간이라면 파일 B가 파일 A에 선언된 모듈을 참조(reference)할 수 있는데 참조할 때는 별도의 참조문을 선언할 필요가 없습니다. <br />
+같은 네임스페이스 안에서는 이름을 중복해서 클래스, 함수, 변수 등을 선언할 수 없다. 하지만 다른 네임스페이스 간에는 이름이 같아도 충돌이 없습니다.
 ```typescript
+//moduleA.ts
+namespace moduleA {
+  export let a: string = 'a'
+}
+
+//moduleB.ts
+namespace moduleA {
+  console.log(a)
+}
+```
+아래와 같이 네임스페이스를 컴파일 한 결과물을 보면 즉시호출함수를 이용한 것을 볼 수 있습니다.<br />
+내부모듈은 컴파일된 JS에서 module-loader에 의존하지 않기 때문에 전역스코프에 오프젝트로 명명됩니다.
+이는 글로벌 네임스페이스를 망칠 수도 있으며, 규모가 클수록 식별하기 어려워져서 module-loader를 쓰는게 더 좋습니다.
+```javascript
+//moduleA.js
+var moduleA;
+(function (moduleA) {
+    moduleA.a = 'a';
+})(moduleA || (moduleA = {}));
+
+//moduleB.js
+var moduleA;
+(function (moduleA) {
+  console.log(moduleA.a);
+})(moduleA || (moduleA = {}));
+
+//something.html
+<script src="moduleA.js" type="text/javascript" />
+<script src="moduleB.js" type="text/javascript" />
+```
+타입선언 파일에서도 마찬가지로 네임스페이스를 활용할 수 있습니다.
+```typescript
+// @types/react/index.d.ts
+export = React;
+export as namespace React;
+
+declare namespace React {
+  //
+  // React Elements
+  // ----------------------------------------------------------------------
+
+  type ElementType<P = any> =
+    {
+      [K in keyof JSX.IntrinsicElements]: P extends JSX.IntrinsicElements[K] ? K : never
+    }[keyof JSX.IntrinsicElements] |
+    ComponentType<P>;
+  /**
+   * @deprecated Please use `ElementType`
+   */
+  type ReactType<P = any> = ElementType<P>;
+  type ComponentType<P = {}> = ComponentClass<P> | FunctionComponent<P>;
+
+  type JSXElementConstructor<P> =
+    | ((props: P) => ReactElement<any, any> | null)
+    | (new (props: P) => Component<P, any>);
+}
+```
+
+### 3. declare module "Module_Name" 
+앰비언트 모듈 이라고 부릅니다.<br/>
+이 파일은 컴파일 대상에 포함될 경우 앰비언트 모듈 선언 목록에 추가됩니다.
+```typescript
+//index.d.ts
 declare module "moduleA" {
   export let a: string
 }
+
+//index.ts
+import { a } from "moduleA"
 ```
 ## 타입스크립트 모듈 탐색 방식
 타입 선언 파일을 찾는 과정은 모듈을 불러오는 방식에 따라 다릅니다.
@@ -109,9 +143,12 @@ import modulename from 'modulename'; // non-relative module import
 5. baseUrl 옵션에 도달할 때 까지 상위 디렉토리로 올라가며 파일을 탐색한다.
 6. baseUrl까지 타입 선언 파일을 찾지 못하면 컴파일 시에 포함되어있는 앰비언트 모듈 선언 목록에서 타입을 참조한다.
 
-## 컴파일 시점에 포함되는 파일
+### 예시
+![img_4.png](img_4.png)
 
-1.imported module
+## 컴파일 시점에 포함시키는 방법
+
+### 1.imported module
 ```typescript
 // moduleA.d.ts
 declare module "moduleA"{
@@ -125,74 +162,31 @@ declare module "moduleA"{
 import "./moduleA"
 import { object } from "moduleA"
 ```
-2.triple-slash directives<br/>
-파일 간 의존성 선언으로 컴파일 프로세스에 추가적인 파일을 포함하도록 컴파일러에게 지시한다.
+###2.triple-slash directives<br/>
+패키지 혹은 파일 간  의존성 선언으로 컴파일 프로세스에 추가적인 파일을 포함하도록 컴파일러에게 지시한다.
 ```typescript
-/// <reference path=”./mymodule.d.ts” /> 
-/// <reference types=”mymodule” /> 
+/// <reference path=”./mymodule.d.ts” /> 파일
+/// <reference types=”mymodule” />  패키지 (mymodule/index.d.ts or package.json)
 ```
-3.컴파일러 설정에 포함되어있는 파일
+※ tsconfig.json이 없는 시절에 컴파일에 포함할 파일들을 알려주기위해서 사용했습니다.
+
+###3.컴파일러 설정에 포함되어있는 파일
 ```json
 {
  "compilerOptions": {
- // config 파일에서 설정하는 다른 경로 관련 옵션에 상대경로를 입력할 경우의 root 디렉토리를 지정한다.
+ // config 파일에서 설정하는 다른 경로 관련 옵션에 상대경로를 입력할 경우의 root 디렉토리를 지정합니다.
  "baseUrl": ".",
- // 디렉토리 경로 문자열을 지정한다.
- // 1. <reference types=”…” />와 types옵션에서 모듈 선언을 탐색할 때 기본 디렉토리 역할을 한다.
- // 2. 해당 옵션에 지정된 경로 하위 모든 폴더는 컴파일시에 자동 포함됩니다.
- // 3. 포함되는 것은 폴더임으로 module/index.d.ts가 없다면 컴파일 오류가 발생한다.
- "typeRoots": [],
- // 모듈명을 지정한다. 이 옵션이 설정되어 있으면 typeRoots의 자동포함은 동작하지 않습니다.  
- "types": []
+ // 디렉토리 경로 문자열을 지정합니다.
+ // 1. <reference types=”…” />와 types옵션에서 모듈 선언을 탐색할 때 기본 디렉토리 역할을 합니다.
+ // 2. 해당 옵션에 지정된 경로 하위 모든 패키지는 컴파일시에 자동 포함됩니다.
+ "typeRoots": ["./typings"],
+ // 패키지명을 지정합니다. 이 옵션이 설정되어 있으면 typeRoots의 자동포함은 동작하지 않습니다.
+ "types": ["node", "lodash", "express"]
  },
-// 포함하고자 하는 파일의 경로르 입력한다.(확장자까지 필요)  
- "files": [],
-// 파일패턴이나 와일드카드 입력이 가능하고 확장자를 입력하지 않는 경우 디렉토리 아래의 모든 파일을 포함한다. 
- "include": [],
-// include에서 제외할 패턴을 지정한다.  
- "exclude": []
+// 파일패턴이나 와일드카드 입력이 가능하고 확장자를 입력하지 않는 경우 디렉토리 아래의 모든 파일을 포함합니다. 
+ "include": ["src"],
+// include에서 제외할 패턴을 지정합니다.  
+ "exclude": ["src"]
 }
 ```
-## 실습
-![img_1.png](img_1.png)
-```typescript
-// index.ts
-import moduleA from "moduleA"
-```
-```json
-{
- "compilerOptions": {
-  "baseUrl": ".",
-   "paths": {
-     "moduleA": ["./src/@types/myDeclaration.d.ts"]
-   }
- }
-}
-```
-1. 컴파일러는 index.ts에서 non-relative module import구문을 발견하여 moduleA모듈에 대한 타입 선언 파일을 탐색하기 시작한다.
-2. compilerOptions.path에 moduleA에 대한 경로 설정이 존재하므로 해당 경로를 우선 탐색한다.
-3. 경로에서 .d.ts파일을 찾았으므로 탐색을 종료하고, myDeclaration.d.ts파일 내의 모듈 타입 선언을 앰비언트 모듈 선언 목록에 추가한다.
-
-```typescript
-// index.ts
-import moduleB from "moduleB"
-```
-```json
-{
- "compilerOptions": {
-  "baseUrl": ".",
-   "paths": {
-     "moduleB": ["./src/@types/myDeclaration.d.ts"]
-   },
-   "types": []
- }
-}
-```
-1. compilerOptions.types에 값이 지정되었으므로, node_modules/@types디렉토리 내의 모듈에 대한 자동 포함이 동작하지 않는다.
-2. 이 다음은 moduleA를 불러올 때와 동일하게 동작한다.
-
-만일 types에 값이 지정되지 않는다면 node_modules/@types 아래의 moduleB에 대한 타입 선언이 자동으로 포함되어 중복 선언 컴파일 에러가 발생할 것이다.
-
-## 마무리겸 주의사항
-typescript 버전이 올라가고 기본 module 옵션이 classic에서 node로 바뀜에 따라 컴파일러가 모듈을 찾는 방식이 바뀌었다. <br/>
-![img_3.png](img_3.png)
+※ exclude에 포함시키거나 여러 옵션들에 특정 파일을 넣지 않더라도 import 시킨다면 컴파일 시점에 포함됨으로 주의해야됩니다.
