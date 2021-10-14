@@ -36,34 +36,6 @@ export interface CSSObject extends CSSProperties, CSSPseudos {
 ### declare 키워드
 컴파일러에게 해당 변수나 함수가 이미 존재한다는 것을 알리는 역할을 한다.<br />
 컴파일러는 코드의 정적 타입 확인을 위해 사용할 뿐 자바스크립트로 컴파일되지 않습니다.<br />
-```typescript
-// @types/styled-components/index.d.ts
-declare const styled: StyledInterface;
-
-export default styled
-
-//index.ts
-import styeld from "styled-components"
-````
-**※ tsconfig.json이 없는 시절에 컴파일에 포함할 파일들을 알려주기위해서 사용했습니다.**
-```typescript
-// moduleA.d.ts
-declare let AString: string;
-
-//index.ts
-/// <reference path="./moduleA.d.ts" /> -> 타입스크립트 컴파일러 참조자
-AString = "string"
-````
-**※ module-loader와 tsconfig.json이 생기고 부터는 사실상 declare 키워드는 필요가 없습니다.**
-```typescript
-// @types/styled-components/index.d.ts
-const styled: StyledInterface;
-
-export default styled
-
-//index.ts
-import styeld from "styled-components"
-````
 <br />
 
 ### 1. declare global 블록
@@ -94,7 +66,7 @@ namespace name {
 }
 ```
 아래와 같이 네임스페이스를 컴파일 한 결과물을 보면 즉시호출함수를 이용한 것을 볼 수 있습니다.<br />
-내부모듈은 컴파일된 JS에서 module-loader에 의존하지 않기 때문에 전역스코프에 오프젝트로 명명됩니다.
+내부모듈은 컴파일된 JS에서 module-loader에 의존하지 않기 때문에 전역스코프에 오브젝트로 명명됩니다.
 이는 글로벌 네임스페이스를 망칠 수도 있으며, 규모가 클수록 식별하기 어려워져서 module-loader를 쓰는게 더 좋습니다.
 ```javascript
 //moduleA.js
@@ -116,10 +88,9 @@ var name;
 타입선언 파일에서도 마찬가지로 네임스페이스를 활용할 수 있습니다.
 ```typescript
 // name.d.ts
-export declare namespace name {
-  
+declare namespace name {
+  let a: string
 }
-
 ```
 <br />
 
@@ -193,6 +164,9 @@ import { object } from "moduleA"
 {
  "compilerOptions": {
  "baseUrl": ".",
+ "path": {
+   "moduleA": ["./src/modulA.d.ts"]
+ },  
  "typeRoots": ["./typings"],
  "types": ["node", "lodash", "express"]
  },
@@ -203,6 +177,9 @@ import { object } from "moduleA"
 - baseUrl
   1. config 파일에서 설정하는 다른 경로 관련 옵션에 상대경로를 입력할 경우의 root 디렉토리를 지정합니다.
   
+- path
+  1. 비 상대경로 모듈 탐색 시에 설정되어 있을 경우 먼저 탐색되는 경로를 지정합니다.
+    
 - typeRoots
   1. 디렉토리 경로 문자열을 지정합니다.
   2. <reference types=”…” />와 types옵션에서 모듈 선언을 탐색할 때 기본 디렉토리 역할을 합니다.
