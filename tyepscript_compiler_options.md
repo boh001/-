@@ -26,11 +26,11 @@ export interface CSSObject extends CSSProperties, CSSPseudos {
 - 타입스크립트로 작성된 소스코드를 AST로 변환
 - 타입체커가 AST를 확인
 - AST를 자바스크립트 소스코드로 변환
-  <br />
+  
+<br />
   
 ## 타입 선언 파일(.d.ts)이란?
 타입 선언코드만 모여있는 파일로써 컴파일러에게 모듈의 타입을 알려주기 위해서 타입 선언 파일이 필요한다.<br/>
-<br />
 
 ### declare 키워드
 컴파일러에게 해당 변수나 함수가 이미 존재한다는 것을 알리는 역할을 한다.<br />
@@ -44,6 +44,8 @@ export default styled
 //index.ts
 import styeld from "styled-components"
 ````
+<br />
+
 ### 1. declare global
 모듈 파일에서 전역 참조가 가능한 선언코드를 작성하고 싶을 때 사용합니다.
 ```typescript
