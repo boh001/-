@@ -30,11 +30,11 @@ export interface CSSObject extends CSSProperties, CSSPseudos {
 <br />
   
 ## 타입 선언 파일(.d.ts)이란?
-타입 선언코드만 모여있는 파일로써 컴파일러에게 모듈의 타입을 알려주기 위해서 타입 선언 파일이 필요한다.<br/>
-컴파일 시에 자바스크립트 파일로 변환되지 않는다.
+타입 선언코드만 모여있는 파일로써 컴파일러에게 모듈의 타입을 알려주기 위해서 타입 선언 파일이 필요합니다<br/>
+컴파일 시에 자바스크립트 파일로 변환되지 않습니다.
 
 ### declare 키워드
-컴파일러에게 해당 변수나 함수가 이미 존재한다는 것을 알리는 역할을 한다.<br />
+컴파일러에게 해당 변수나 함수가 이미 존재한다는 것을 알리는 역할을 합니다.<br />
 컴파일러는 코드의 정적 타입 확인을 위해 사용할 뿐 자바스크립트로 컴파일되지 않습니다.<br />
 <br />
 
@@ -167,7 +167,7 @@ import { object } from "moduleA"
  "path": {
    "moduleA": ["./src/modulA.d.ts"]
  },  
- "typeRoots": ["./typings"],
+ "typeRoots": ["node_modules/@types", "./typings"],
  "types": ["node", "lodash", "express"]
  },
  "include": ["src"],
