@@ -80,7 +80,8 @@ var name;
 (function (name) {
   console.log(name.a);
 })(name || (name = {}));
-
+```
+```html
 //something.html
 <script src="moduleA.js" type="text/javascript" />
 <script src="moduleB.js" type="text/javascript" />
