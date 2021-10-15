@@ -89,9 +89,13 @@ var name;
 타입선언 파일에서도 마찬가지로 네임스페이스를 활용할 수 있습니다.
 ```typescript
 // name.d.ts
-declare namespace name {
+export declare namespace name {
   let a: string
 }
+
+import { name } from "./name"
+
+name.a
 ```
 <br />
 
