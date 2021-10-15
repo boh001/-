@@ -193,3 +193,18 @@ import { object } from "moduleA"
   1. include에서 제외할 패턴을 지정합니다.
 
 ※ exclude에 포함시키거나 여러 옵션들에 특정 파일을 넣지 않더라도 import 시킨다면 컴파일 시점에 포함됨으로 주의해야됩니다.
+
+## 결론
+특정 라이브러리를 다운로드 받았을 때, 타입선언 파일이 따로 존재하지 않는다면 앰비언트 모듈을 이용하면 됩니다.
+```typescript
+declare module "module_name" {}
+```
+※ 타입선언 파일이 존재하지만 확장이 필요한 경우 해당 모듈을 import 한 후에 사용하면 된다.
+```typescript
+import "styled-components"
+
+declare module "styeld-components" {
+  interface CustomTheme {
+  }
+}
+```
